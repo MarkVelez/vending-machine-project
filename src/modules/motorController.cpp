@@ -19,11 +19,15 @@ bool returning = false;
 bool hasProblem = false;
 
 // Time variables
-unsigned long startTime = 0;
+unsigned long startTime;
 int sensorTime = 1000;
-int defaultMotorTimeout = 1500;
-int motorTimeout;
+int motorTimeout = 5000;
 int timeTaken;
+
+// Service mode variables
+bool serviceMode = false;
+const unsigned char serviceModeButton = 6;
+const unsigned char  = 7;
 
 // Storage variables
 unsigned char currentStorage = 10;
@@ -49,17 +53,22 @@ void motorSetup(){
 
 void motorLoop(){
   // While the dispensing process is ongoing
-  if (dispensing){
+  if (dispensing && !serviceMode){
     long currentTime = millis();
 
     // Checking for sensor inputs until timout or the exit sensor is triggered
     if (currentTime - startTime < sensorTime + motorTimeout || !exitSensorTriggered){
+      // Checking if the sensor at the top of the shaft has been triggered
+      // If yes it stops the motor
       if (digitalRead(topSensor) == LOW){
         Serial.println("Top sensor triggered");
         motorStop();
         topSensorTriggered = true;
         delay(50);
       }
+
+      // Checking if the sensor at the exit hole of the vending machine is triggered
+      // If yes it initiates the stopping of the dispensing process
       if (digitalRead(exitSensor) == LOW){
         Serial.println("Exit sensor triggered");
         exitSensorTriggered = true;
@@ -78,7 +87,10 @@ void motorLoop(){
     }
   }
   
+  // Runs if the jars are being sent back down the shaft
   if (returning){
+    // Checking if the jars have reached the bottom of the shaft
+    // If yes stop the motor
     if (digitalRead(bottomSensor) == LOW){
       Serial.println("Bottom sensor triggered");
       motorStop();
@@ -113,8 +125,6 @@ void startDispensing(){
   dispensing = true;
   // Setting the motor speed based on how many jars are currently stored
   motorSpeed = map(currentStorage, 1, maxStorage, 50, 240);
-  // Setting the motor timeout time based on how many jars are currently stored
-  motorTimeout = defaultMotorTimeout * ((maxStorage - currentStorage) + 1);
   startTime = millis();
   exitSensorTriggered = false;
   topSensorTriggered = false;
