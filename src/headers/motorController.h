@@ -7,7 +7,10 @@ void motorLoop();
 void motorUp();
 void motorDown();
 void motorStop();
-void stopDispensing();
 void startDispensing();
+void dispensingProcess();
+void stopDispensing();
+void returningProcess();
+void maintenanceProcess();
 
 #endif
