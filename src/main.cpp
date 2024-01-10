@@ -1,5 +1,4 @@
-#include <Arduino.h>
-#include "modules/motorController.cpp"
+#include "headers/motorController.h"
 
 void setup(){
     motorSetup();

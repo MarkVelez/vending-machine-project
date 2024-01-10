@@ -1,12 +1,13 @@
+#include <Arduino.h>
 #include "../headers/motorController.h"
 
 // Motor variables
-const unsigned char motorA1Pin = 10;
-const unsigned char motorA2Pin = 11;
+const unsigned char motorA1Pin = 26;
+const unsigned char motorA2Pin = 27;
 unsigned char motorSpeed = 50;
 
 // Input pins
-const unsigned char button = 2;
+const unsigned char button = 14;
 const unsigned char topSensor = 3;
 const unsigned char exitSensor = 4;
 const unsigned char bottomSensor = 5;
@@ -64,9 +65,9 @@ void motorLoop(){
         startDispensing();
       }
 
-      if (digitalRead(maintenanceModeButton) == LOW){
-        currentState = MAINTENANCE;
-      }
+      //if (digitalRead(maintenanceModeButton) == LOW){
+      //  currentState = MAINTENANCE;
+      //}
       break;
     }
 
@@ -180,4 +181,8 @@ void returningProcess(){
     currentState = IDLE;
     delay(50);
   }
+}
+
+void maintenanceProcess(){
+  
 }
