@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "../headers/motorController.h"
+#include "../headers/errorHandler.h"
 
 // Motor variables
 const unsigned char motorA1Pin = 26;
@@ -12,9 +13,10 @@ const unsigned char topSensor = 3;
 const unsigned char exitSensor = 4;
 const unsigned char bottomSensor = 5;
 
-// Output variables
+// Sensor logging variables
 bool topSensorTriggered = false;
 bool exitSensorTriggered = false;
+bool bottomSensorTriggered = false;
 
 // Time variables
 unsigned long startTime;
