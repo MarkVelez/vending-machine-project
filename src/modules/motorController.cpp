@@ -30,6 +30,7 @@ const unsigned char actionButton = 7;
 // Storage variables
 unsigned char currentStorage = 10;
 unsigned char maxStorage = 10;
+bool emptyStorage = false;
 
 // Machine states
 enum states{
@@ -40,6 +41,11 @@ enum states{
   ERROR
 };
 states currentState = IDLE;
+
+// Error variables
+int errorCode = 0;
+const int errorLength = 4;
+bool errorBools[errorLength] = {topSensorTriggered, exitSensorTriggered, bottomSensorTriggered, emptyStorage};
 
 void motorSetup(){
   // Motor pin definitions
@@ -59,11 +65,11 @@ void motorSetup(){
   Serial.begin(9600);
 }
 
-void motorLoop(){
+void motorLoop(bool successfulPayment){
   switch (currentState){
     case IDLE:{
       // Checking for requests if dispensing is not in process and there are no issues
-      if (digitalRead(button) == LOW){
+      if (successfulPayment){
         startDispensing();
       }
 
@@ -169,6 +175,8 @@ void stopDispensing(){
     Serial.println("Failed to dispense");
     // Disables the machine
     currentState = ERROR;
+    errorCode = generateErrorCode(errorBools, errorLength);
+    sendErrorCode(errorCode, errorLength);
     // Sending the jars back down without removing from the current storage
     motorDown();
   }
@@ -186,5 +194,5 @@ void returningProcess(){
 }
 
 void maintenanceProcess(){
-  
+  displayErrorCode(errorCode, errorLength);
 }

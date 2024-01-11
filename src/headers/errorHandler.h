@@ -2,6 +2,8 @@
 #define errorHandler_h
 
 // Function declarations
-void errorHandling(char text[]);
+int generateErrorCode(bool variableValues[], int errorCodeLength);
+void sendErrorCode(int errorCode, int errorCodeLength);
+void displayErrorCode(int errorCode, int errorCodeLength);
 
 #endif

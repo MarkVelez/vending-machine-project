@@ -3,7 +3,7 @@
 
 // Function declarations
 void motorSetup();
-void motorLoop();
+void motorLoop(bool successfulPayment);
 void motorUp();
 void motorDown();
 void motorStop();
