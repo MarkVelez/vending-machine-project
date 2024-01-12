@@ -1,17 +1,17 @@
 #include <Arduino.h>
 #include "../headers/motorController.h"
 #include "../headers/errorHandler.h"
+#include "../headers/lcdController.h"
 
 // Motor variables
-const unsigned char motorA1Pin = 26;
-const unsigned char motorA2Pin = 27;
+uint8_t motorA1Pin = 26;
+uint8_t motorA2Pin = 27;
 unsigned char motorSpeed = 50;
 
 // Input pins
-const unsigned char button = 14;
-const unsigned char topSensor = 3;
-const unsigned char exitSensor = 4;
-const unsigned char bottomSensor = 5;
+uint8_t topSensor = 3;
+uint8_t exitSensor = 4;
+uint8_t bottomSensor = 5;
 
 // Sensor logging variables
 bool topSensorTriggered = false;
@@ -24,23 +24,13 @@ int sensorTime = 1000;
 int motorTimeout = 5000;
 
 // Service mode pins
-const unsigned char maintenanceModeButton = 6;
-const unsigned char actionButton = 7;
+uint8_t maintenanceModeButton = 6;
+uint8_t actionButton = 7;
 
 // Storage variables
 unsigned char currentStorage = 10;
 unsigned char maxStorage = 10;
 bool emptyStorage = false;
-
-// Machine states
-enum states{
-  IDLE,
-  DISPENSING,
-  RETURNING,
-  MAINTENANCE,
-  ERROR
-};
-states currentState = IDLE;
 
 // Error variables
 int errorCode = 0;
@@ -53,7 +43,6 @@ void motorSetup(){
   pinMode(motorA2Pin, OUTPUT);
 
   // Input definitions
-  pinMode(button, INPUT_PULLUP);
   pinMode(topSensor, INPUT_PULLUP);
   pinMode(exitSensor, INPUT_PULLUP);
   pinMode(bottomSensor, INPUT_PULLUP);
@@ -63,42 +52,6 @@ void motorSetup(){
 
   // Connecting to serial monitor
   Serial.begin(9600);
-}
-
-void motorLoop(bool successfulPayment){
-  switch (currentState){
-    case IDLE:{
-      // Checking for requests if dispensing is not in process and there are no issues
-      if (successfulPayment){
-        startDispensing();
-      }
-
-      //if (digitalRead(maintenanceModeButton) == LOW){
-      //  currentState = MAINTENANCE;
-      //}
-      break;
-    }
-
-    case DISPENSING:{
-      dispensingProcess();
-      break;
-    }
-
-    case MAINTENANCE:{
-      if (digitalRead(maintenanceModeButton) == LOW){
-        currentState == IDLE;
-      }else{
-        maintenanceProcess();
-      }
-      break;
-    }
-  
-    // Runs if the jars are being sent back down the shaft
-    case RETURNING:{
-      returningProcess();
-      break;
-    }
-  }
 }
 
 // Makes the motor spin backwards
@@ -173,8 +126,7 @@ void stopDispensing(){
   }else{
     // If the dispensing process was not successful
     Serial.println("Failed to dispense");
-    // Disables the machine
-    currentState = ERROR;
+    // Generate error code and send it to the server which disables the machine
     errorCode = generateErrorCode(errorBools, errorLength);
     sendErrorCode(errorCode, errorLength);
     // Sending the jars back down without removing from the current storage
@@ -182,6 +134,7 @@ void stopDispensing(){
   }
 }
 
+// Starts the returning process
 void returningProcess(){
   // Checking if the jars have reached the bottom of the shaft
   // If yes stop the motor
@@ -193,6 +146,46 @@ void returningProcess(){
   }
 }
 
+
+// Starts the maintenance process
 void maintenanceProcess(){
-  displayErrorCode(errorCode, errorLength);
+  // If the maintenance button is pressed in maintenance mode it exits maintenance mode
+  if (digitalRead(maintenanceModeButton) == LOW){
+    currentState == IDLE;
+
+    // If there was an error, unset the errorCode and enable the machine
+    if (errorCode != -1){
+      errorCode = -1;
+      Serial.print("Error: ");
+      Serial.println(errorCode);
+    }
+  }
+
+  if 
+}
+
+void idleProcess(bool successfulPayment){
+  // Checks for successful payments
+  // If there was one start the dispensing process
+  if (successfulPayment){
+    startDispensing();
+  }
+
+  // Checks if storage is empty
+  // If yes generates an error code and sends it to the server which disables the machine
+  if (currentStorage <= 0 && errorCode == -1){
+    emptyStorage = true;
+    Serial.println("Storage empty");
+    lcdPrint("Machine is disabled!");
+  }
+
+  // If the maintenance button is pressed the machine switches to maintenance mode
+  if (digitalRead(maintenanceModeButton) == LOW){
+    currentState = MAINTENANCE;
+
+    // If there was an error, display the error code on the lcd
+    if (errorCode != -1){
+      displayErrorCode(errorCode, errorLength);
+    }
+  }
 }
