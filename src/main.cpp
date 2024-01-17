@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "headers/motorController.h"
+#include "headers/temperatureController.h"
 
 // MDB USB relay pin
 uint8_t relayPin = 2;
@@ -8,12 +9,17 @@ uint8_t relayPin = 2;
 states currentState = IDLE;
 
 void setup(){
-    motorSetup();
+  temperatureSetup();
+  motorSetup();
 
-    pinMode(relayPin, INPUT_PULLUP);
+  pinMode(relayPin, INPUT_PULLUP);
+
+  // Connecting to serial monitor
+  Serial.begin(9600);
 }
 
 void loop(){
+  temperatureRead();
   switch (currentState){
     case IDLE:{
       idleProcess(!digitalRead(relayPin));
