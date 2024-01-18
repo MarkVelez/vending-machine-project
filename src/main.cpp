@@ -2,10 +2,10 @@
 #include "headers/motorController.h"
 
 // MDB USB relay pin
-uint8_t relayPin = 2;
+const uint8_t relayPin = 2;
 
 // Machine state
-states currentState = IDLE;
+machineStates currentMachineState = IDLE;
 
 void setup(){
     motorSetup();
@@ -14,7 +14,7 @@ void setup(){
 }
 
 void loop(){
-  switch (currentState){
+  switch (currentMachineState){
     case IDLE:{
       idleProcess(!digitalRead(relayPin));
       break;

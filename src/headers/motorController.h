@@ -2,13 +2,21 @@
 #define motorController_h
 
 // Machine states
-enum states{
+enum machineStates{
   IDLE,
   DISPENSING,
   RETURNING,
   MAINTENANCE
 };
-extern states currentState;
+extern machineStates currentMachineState;
+
+// Motor states
+enum motorStates{
+  UP,
+  DOWN,
+  STOPPED
+};
+extern motorStates currentMotorState;
 
 // Function declarations
 void motorSetup();

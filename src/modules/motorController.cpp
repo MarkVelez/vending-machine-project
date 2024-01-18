@@ -4,14 +4,15 @@
 #include "../headers/lcdController.h"
 
 // Motor variables
-uint8_t motorA1Pin = 26;
-uint8_t motorA2Pin = 27;
+const uint8_t motorA1Pin = 26;
+const uint8_t motorA2Pin = 27;
 unsigned char motorSpeed = 50;
+motorStates currentMotorState = STOPPED;
 
 // Input pins
-uint8_t topSensor = 3;
-uint8_t exitSensor = 4;
-uint8_t bottomSensor = 5;
+const uint8_t topSensor = 3;
+const uint8_t exitSensor = 4;
+const uint8_t bottomSensor = 5;
 
 // Sensor logging variables
 bool topSensorTriggered = false;
@@ -24,8 +25,12 @@ int sensorTime = 1000;
 int motorTimeout = 5000;
 
 // Service mode pins
-uint8_t maintenanceModeButton = 6;
-uint8_t actionButton = 7;
+const uint8_t maintenanceModeButton = 6;
+const uint8_t upButton = 7;
+const uint8_t downButton = 8;
+const uint8_t increaseStorage = 9;
+const uint8_t decreaseStorage = 10;
+
 
 // Storage variables
 unsigned char currentStorage = 10;
@@ -58,25 +63,26 @@ void motorSetup(){
 void motorUp(){
   digitalWrite(motorA2Pin, LOW);
   analogWrite(motorA1Pin, motorSpeed);
+  currentMotorState = UP;
 }
 
 // Makes the motor spin forwards
 void motorDown(){
   digitalWrite(motorA1Pin, LOW);
   analogWrite(motorA2Pin, 50);
-  currentState = RETURNING;
-  Serial.println("Returning");
+  currentMotorState = DOWN;
 }
 
 // Makes the motor stop
 void motorStop(){
   analogWrite(motorA1Pin, 0);
   analogWrite(motorA2Pin, 0);
+  currentMotorState = STOPPED;
 }
 
 // Starts the dispensing process
 void startDispensing(){
-  currentState = DISPENSING;
+  currentMachineState = DISPENSING;
   // Setting the motor speed based on how many jars are currently stored
   motorSpeed = map(currentStorage, 1, maxStorage, 50, 240);
   startTime = millis();
@@ -119,7 +125,7 @@ void stopDispensing(){
   // If the dispensing process was successful
   if (topSensorTriggered && exitSensorTriggered){
     Serial.println("Successfully dispensed");
-    currentState = IDLE;
+    currentMachineState = IDLE;
     // Reducing the current storage by one and lowering the jars back down the shaft
     currentStorage--;
     motorDown();
@@ -132,6 +138,8 @@ void stopDispensing(){
     // Sending the jars back down without removing from the current storage
     motorDown();
   }
+  currentMachineState = RETURNING;
+  Serial.println("Returning");
 }
 
 // Starts the returning process
@@ -141,7 +149,7 @@ void returningProcess(){
   if (digitalRead(bottomSensor) == LOW){
     Serial.println("Bottom sensor triggered");
     motorStop();
-    currentState = IDLE;
+    currentMachineState = IDLE;
     delay(50);
   }
 }
@@ -151,7 +159,7 @@ void returningProcess(){
 void maintenanceProcess(){
   // If the maintenance button is pressed in maintenance mode it exits maintenance mode
   if (digitalRead(maintenanceModeButton) == LOW){
-    currentState == IDLE;
+    currentMachineState == IDLE;
 
     // If there was an error, unset the errorCode and enable the machine
     if (errorCode != -1){
@@ -161,7 +169,9 @@ void maintenanceProcess(){
     }
   }
 
-  if 
+  if (digitalRead(upButton) == LOW){
+
+  }
 }
 
 void idleProcess(bool successfulPayment){
@@ -175,13 +185,14 @@ void idleProcess(bool successfulPayment){
   // If yes generates an error code and sends it to the server which disables the machine
   if (currentStorage <= 0 && errorCode == -1){
     emptyStorage = true;
-    Serial.println("Storage empty");
+    errorCode = generateErrorCode(errorBools, errorLength);
+    sendErrorCode(errorCode, errorLength);
     lcdPrint("Machine is disabled!");
   }
 
   // If the maintenance button is pressed the machine switches to maintenance mode
   if (digitalRead(maintenanceModeButton) == LOW){
-    currentState = MAINTENANCE;
+    currentMachineState = MAINTENANCE;
 
     // If there was an error, display the error code on the lcd
     if (errorCode != -1){
