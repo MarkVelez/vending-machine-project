@@ -54,9 +54,6 @@ void motorSetup(){
 
   // Stopping the motor just to make sure
   motorStop();
-
-  // Connecting to serial monitor
-  Serial.begin(9600);
 }
 
 // Makes the motor spin backwards
@@ -92,7 +89,7 @@ void startDispensing(){
 }
 
 void dispensingProcess(){
-  long currentTime = millis();
+  unsigned long currentTime = millis();
 
   // Checking for sensor inputs until timout or the exit sensor is triggered
   if (currentTime - startTime < sensorTime + motorTimeout || !exitSensorTriggered){
