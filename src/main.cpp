@@ -19,9 +19,8 @@ void setup(){
 }
 
 void loop(){
-  switch (currentMachineState){
   temperatureRead();
-  switch (currentState){
+  switch (currentMachineState){
     case IDLE:{
       idleProcess(!digitalRead(relayPin));
       break;

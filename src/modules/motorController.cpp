@@ -166,9 +166,23 @@ void maintenanceProcess(){
     }
   }
 
-  if (digitalRead(upButton) == LOW){
-
+  if (digitalRead(upButton) == LOW && currentMotorState != UP){
+    motorUp();
+  }else if (digitalRead(downButton) == LOW && currentMotorState != DOWN){
+    motorDown();
+  }else if (currentMotorState != STOPPED){
+    motorStop();
   }
+
+  if (digitalRead(increaseStorage) == LOW && currentStorage < maxStorage){
+    currentStorage++;
+  }
+
+  if (digitalRead(decreaseStorage) == LOW){
+    currentStorage--;
+  }
+  
+  delay(50);
 }
 
 void idleProcess(bool successfulPayment){
