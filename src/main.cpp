@@ -3,12 +3,13 @@
 #include "headers/temperatureController.h"
 
 // MDB USB relay pin
-const uint8_t relayPin = 2;
+const uint8_t relayPin = 26;
 
 // Machine state
 machineStates currentMachineState = IDLE;
 
 void setup(){
+  // Setups for included modules
   temperatureSetup();
   motorSetup();
 
@@ -21,16 +22,18 @@ void setup(){
 void loop(){
   temperatureRead();
   switch (currentMachineState){
+    // The idle state of the machine
     case IDLE:{
       idleProcess(!digitalRead(relayPin));
       break;
     }
-
+    // Runs once a successful payment has gone through
     case DISPENSING:{
       dispensingProcess();
       break;
     }
 
+    // Runs when maintenance mode is toggled on
     case MAINTENANCE:{
       maintenanceProcess();
       break;
@@ -42,4 +45,11 @@ void loop(){
       break;
     }
   }
+}
+
+String getIncomingData(){
+    if (Serial.available() > 0){
+      String data = Serial.readStringUntil('\n');
+      return data;
+    }
 }

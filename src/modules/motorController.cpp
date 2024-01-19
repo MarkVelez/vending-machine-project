@@ -6,13 +6,13 @@
 // Motor variables
 const uint8_t motorA1Pin = 26;
 const uint8_t motorA2Pin = 27;
-unsigned char motorSpeed = 50;
+uint8_t motorSpeed = 50;
 motorStates currentMotorState = STOPPED;
 
 // Input pins
-const uint8_t topSensor = 3;
-const uint8_t exitSensor = 4;
-const uint8_t bottomSensor = 5;
+const uint8_t topSensor = 12;
+const uint8_t exitSensor = 14;
+const uint8_t bottomSensor = 27;
 
 // Sensor logging variables
 bool topSensorTriggered = false;
@@ -38,9 +38,8 @@ unsigned char maxStorage = 10;
 bool emptyStorage = false;
 
 // Error variables
-int errorCode = 0;
-const int errorLength = 4;
-bool errorBools[errorLength] = {topSensorTriggered, exitSensorTriggered, bottomSensorTriggered, emptyStorage};
+int errorCode = -1;
+bool errorBools[] = {topSensorTriggered, exitSensorTriggered, bottomSensorTriggered, emptyStorage};
 
 void motorSetup(){
   // Motor pin definitions
@@ -135,8 +134,8 @@ void stopDispensing(){
     // If the dispensing process was not successful
     Serial.println("Failed to dispense");
     // Generate error code and send it to the server which disables the machine
-    errorCode = generateErrorCode(errorBools, errorLength);
-    sendErrorCode(errorCode, errorLength);
+    errorCode = generateErrorCode(errorBools);
+    sendErrorCode();
     // Sending the jars back down without removing from the current storage
     motorDown();
   }
@@ -201,8 +200,8 @@ void idleProcess(bool successfulPayment){
   // If yes generates an error code and sends it to the server which disables the machine
   if (currentStorage <= 0 && errorCode == -1){
     emptyStorage = true;
-    errorCode = generateErrorCode(errorBools, errorLength);
-    sendErrorCode(errorCode, errorLength);
+    errorCode = generateErrorCode(errorBools);
+    sendErrorCode();
     lcdPrint("Machine is disabled!");
   }
 
@@ -212,7 +211,7 @@ void idleProcess(bool successfulPayment){
 
     // If there was an error, display the error code on the lcd
     if (errorCode != -1){
-      displayErrorCode(errorCode, errorLength);
+      displayErrorCode();
     }
   }
 }

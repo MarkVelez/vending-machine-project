@@ -2,22 +2,29 @@
 #include "../headers/errorHandler.h"
 #include "../headers/lcdController.h"
 
-int generateErrorCode(bool variableValues[], int errorCodeLength){
-    int errorCode = 0;
+int errorCode;
+int errorCodeLength;
+
+int generateErrorCode(bool variableValues[]){
+    errorCode = 0;
+    errorCodeLength = sizeof(variableValues) / sizeof(variableValues[0]);
 
     for (int i = 0; i < errorCodeLength; i++){
         errorCode |= (variableValues[i] << i);
     }
+
+    return errorCode;
 }
 
-void sendErrorCode(int errorCode, int errorCodeLength){
+void sendErrorCode(){
+    Serial.println("Error: ");
     for (int i = errorCodeLength; i > 0; i--){
-        Serial.println("Error: ");
         Serial.print((errorCode >> i) & 1);
     }
+    Serial.println();
 }
 
-void displayErrorCode(int errorCode, int errorCodeLength){
+void displayErrorCode(){
     char error[errorCodeLength + 1];
 
     for (int i = errorCodeLength; i > 0; i--){
@@ -25,6 +32,5 @@ void displayErrorCode(int errorCode, int errorCodeLength){
     }
     error[errorCodeLength] = '\0';
 
-    lcdPrint("Error: ");
-    lcdPrint(error);
+    lcdPrint("Error: ", error);
 }

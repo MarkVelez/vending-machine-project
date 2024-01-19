@@ -9,7 +9,7 @@ const unsigned char dataPin = 4;
 // Time between requests in minutes
 unsigned char requestInterval = 15;
 
-unsigned long startTime = 0;
+unsigned long tempStartTime = 0;
 
 // Library setups
 OneWire data(dataPin);
@@ -23,11 +23,11 @@ void readTemperature(){
     unsigned long currentTime = millis();
 
     // Print the temperature every interval
-    if (currentTime - startTime >= requestInterval * 60000){
-        startTime = currentTime;
+    if (currentTime - tempStartTime >= requestInterval * 60000){
+        tempStartTime = currentTime;
         sensors.requestTemperatures();
         float temperatureC = sensors.getTempCByIndex(0);
-        Serial.print("Temperatures: ");
+        Serial.println("Temperatures: ");
         Serial.print(temperatureC);
         Serial.print(" C");
     }
