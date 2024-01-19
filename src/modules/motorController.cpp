@@ -51,6 +51,11 @@ void motorSetup(){
   pinMode(topSensor, INPUT_PULLUP);
   pinMode(exitSensor, INPUT_PULLUP);
   pinMode(bottomSensor, INPUT_PULLUP);
+  pinMode(maintenanceModeButton, INPUT_PULLUP);
+  pinMode(upButton, INPUT_PULLUP);
+  pinMode(downButton, INPUT_PULLUP);
+  pinMode(increaseStorage, INPUT_PULLUP);
+  pinMode(decreaseStorage, INPUT_PULLUP);
 
   // Stopping the motor just to make sure
   motorStop();
