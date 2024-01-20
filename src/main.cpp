@@ -1,6 +1,4 @@
 #include <Arduino.h>
-#include <string>
-#include <iostream>
 #include "headers/motorController.h"
 #include "headers/temperatureController.h"
 #include "headers/serialHandler.h"
@@ -12,6 +10,8 @@ const uint8_t relayPin = 26;
 machineStates currentMachineState = IDLE;
 
 bool serialConnected = false;
+
+unsigned char currentStorage;
 
 void setup(){
   // Setups for included modules
@@ -27,7 +27,7 @@ void loop(){
     serialConnected = true;
     String requestedData = requestData(REQUEST_STORAGE);
     if (requestedData != "ERROR"){
-      currentStorage = std::stoi(requestedData);
+      currentStorage = requestedData.toInt();
     }
   }
 

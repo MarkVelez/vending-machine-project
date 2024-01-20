@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "../headers/errorHandler.h"
+#include "../headers/motorController.h"
 #include "../headers/lcdController.h"
 
 char errorHex[3];
@@ -17,7 +18,7 @@ char* generateErrorCode(){
     sprintf(errorHex, "%02X", errorCode);
     Serial.print(errorHex);
 
-    currentMachineState = DISABLED;
+    machineStates currentMachineState = DISABLE;
 
     lcdPrint("MACHINE DISABLED");
 

@@ -9,7 +9,7 @@ enum machineStates{
   DISPENSING,
   RETURNING,
   MAINTENANCE,
-  DISABLED
+  DISABLE
 };
 extern machineStates currentMachineState;
 

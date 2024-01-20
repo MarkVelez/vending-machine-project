@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "../headers/serialHandler.h"
+#include "../headers/errorHandler.h"
 
 bool connectionFailed = false;
 bool requestFailed = false;

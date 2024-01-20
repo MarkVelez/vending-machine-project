@@ -36,9 +36,6 @@ const uint8_t decreaseStorage = 10;
 unsigned char maxStorage = 10;
 bool emptyStorage = false;
 
-// Error variables
-char* generatedErrorCode = -1;
-
 void motorSetup(){
   // Motor pin definitions
   pinMode(motorA1Pin, OUTPUT);
@@ -132,7 +129,7 @@ void stopDispensing(){
     // If the dispensing process was not successful
     Serial.println("Failed to dispense");
     // Generate error code and send it to the server which disables the machine
-    generatedErrorCode = generateErrorCode();
+    generateErrorCode();
     // Sending the jars back down without removing from the current storage
     motorDown();
   }
@@ -164,11 +161,6 @@ void maintenanceProcess(){
     bool exitSensorTriggered = false;
     bool bottomSensorTriggered = false;
     bool emptyStorage = false;
-
-    // If there was an error, unset the generatedErrorCode and enable the machine
-    if (generatedErrorCode != -1){
-      generatedErrorCode = -1;
-    }
   }
 
   if (digitalRead(upButton) == LOW && currentMotorState != UP){
@@ -199,20 +191,14 @@ void idleProcess(bool successfulPayment){
 
   // Checks if storage is empty
   // If yes generates an error code and sends it to the server which disables the machine
-  if (currentStorage <= 0 && generatedErrorCode == -1){
+  if (currentStorage <= 0){
     emptyStorage = true;
-    generatedErrorCode = generateErrorCode();
-    lcdPrint("MACHINE DISABLED");
+    generateErrorCode();
   }
 
   // If the maintenance button is pressed the machine switches to maintenance mode
   if (digitalRead(maintenanceModeButton) == LOW){
     currentMachineState = MAINTENANCE;
     lcdPrint("Storage: ", currentStorage);
-
-    // If there was an error, display the error code on the lcd
-    if (generatedErrorCode != -1){
-      lcdPrint("Error: ", generatedErrorCode, 1);
-    }
   }
 }
