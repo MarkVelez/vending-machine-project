@@ -33,13 +33,11 @@ const uint8_t decreaseStorage = 10;
 
 
 // Storage variables
-unsigned char currentStorage = 10;
 unsigned char maxStorage = 10;
 bool emptyStorage = false;
 
 // Error variables
-int errorCode = -1;
-bool errorBools[] = {topSensorTriggered, exitSensorTriggered, bottomSensorTriggered, emptyStorage};
+char* generatedErrorCode = -1;
 
 void motorSetup(){
   // Motor pin definitions
@@ -134,8 +132,7 @@ void stopDispensing(){
     // If the dispensing process was not successful
     Serial.println("Failed to dispense");
     // Generate error code and send it to the server which disables the machine
-    errorCode = generateErrorCode(errorBools);
-    sendErrorCode();
+    generatedErrorCode = generateErrorCode();
     // Sending the jars back down without removing from the current storage
     motorDown();
   }
@@ -161,12 +158,16 @@ void maintenanceProcess(){
   // If the maintenance button is pressed in maintenance mode it exits maintenance mode
   if (digitalRead(maintenanceModeButton) == LOW){
     currentMachineState == IDLE;
+    bool connectionFailed = false;
+    bool requestFailed = false;
+    bool topSensorTriggered = false;
+    bool exitSensorTriggered = false;
+    bool bottomSensorTriggered = false;
+    bool emptyStorage = false;
 
-    // If there was an error, unset the errorCode and enable the machine
-    if (errorCode != -1){
-      errorCode = -1;
-      Serial.print("Error: ");
-      Serial.println(errorCode);
+    // If there was an error, unset the generatedErrorCode and enable the machine
+    if (generatedErrorCode != -1){
+      generatedErrorCode = -1;
     }
   }
 
@@ -198,20 +199,20 @@ void idleProcess(bool successfulPayment){
 
   // Checks if storage is empty
   // If yes generates an error code and sends it to the server which disables the machine
-  if (currentStorage <= 0 && errorCode == -1){
+  if (currentStorage <= 0 && generatedErrorCode == -1){
     emptyStorage = true;
-    errorCode = generateErrorCode(errorBools);
-    sendErrorCode();
-    lcdPrint("Machine is disabled!");
+    generatedErrorCode = generateErrorCode();
+    lcdPrint("MACHINE DISABLED");
   }
 
   // If the maintenance button is pressed the machine switches to maintenance mode
   if (digitalRead(maintenanceModeButton) == LOW){
     currentMachineState = MAINTENANCE;
+    lcdPrint("Storage: ", currentStorage);
 
     // If there was an error, display the error code on the lcd
-    if (errorCode != -1){
-      displayErrorCode();
+    if (generatedErrorCode != -1){
+      lcdPrint("Error: ", generatedErrorCode, 1);
     }
   }
 }

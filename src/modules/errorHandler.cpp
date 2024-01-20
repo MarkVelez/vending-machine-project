@@ -2,35 +2,24 @@
 #include "../headers/errorHandler.h"
 #include "../headers/lcdController.h"
 
-int errorCode;
-int errorCodeLength;
+char errorHex[3];
+bool errorBools[] = {connectionFailed, requestFailed, emptyStorage, topSensorTriggered, exitSensorTriggered, bottomSensorTriggered};
+int errorCodeLength = sizeof(errorBools) / sizeof(errorBools[0]);
 
-int generateErrorCode(bool variableValues[]){
-    errorCode = 0;
-    errorCodeLength = sizeof(variableValues) / sizeof(variableValues[0]);
+char* generateErrorCode(){
+    int errorCode = 0;
 
     for (int i = 0; i < errorCodeLength; i++){
-        errorCode |= (variableValues[i] << i);
+        errorCode |= (errorBools[i] << i);
     }
 
-    return errorCode;
-}
+    Serial.println("ERROR>");
+    sprintf(errorHex, "%02X", errorCode);
+    Serial.print(errorHex);
 
-void sendErrorCode(){
-    Serial.println("Error: ");
-    for (int i = errorCodeLength; i > 0; i--){
-        Serial.print((errorCode >> i) & 1);
-    }
-    Serial.println();
-}
+    currentMachineState = DISABLED;
 
-void displayErrorCode(){
-    char error[errorCodeLength + 1];
+    lcdPrint("MACHINE DISABLED");
 
-    for (int i = errorCodeLength; i > 0; i--){
-        error[errorCodeLength - 1 - i] = ((errorCode >> i) & 1) + '0';
-    }
-    error[errorCodeLength] = '\0';
-
-    lcdPrint("Error: ", error);
+    return errorHex;
 }
