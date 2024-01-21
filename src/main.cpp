@@ -11,8 +11,6 @@ machineStates currentMachineState = IDLE;
 
 bool serialConnected = false;
 
-unsigned char currentStorage;
-
 void setup(){
   // Setups for included modules
   serialSetup();
@@ -25,10 +23,6 @@ void setup(){
 void loop(){
   if (establishConnection && !serialConnected){
     serialConnected = true;
-    String requestedData = requestData(REQUEST_STORAGE);
-    if (requestedData != "ERROR"){
-      currentStorage = requestedData.toInt();
-    }
   }
 
   if (serialConnected){

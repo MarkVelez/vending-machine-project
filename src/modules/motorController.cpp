@@ -2,6 +2,7 @@
 #include "../headers/motorController.h"
 #include "../headers/errorHandler.h"
 #include "../headers/lcdController.h"
+#include "../headers/flashController.h"
 
 // Motor variables
 const uint8_t motorA1Pin = 26;
@@ -33,10 +34,13 @@ const uint8_t decreaseStorage = 10;
 
 
 // Storage variables
-unsigned char maxStorage = 10;
+int currentStorage;
+int maxStorage = 10;
 bool emptyStorage = false;
 
 void motorSetup(){
+  currentStorage = getValueFromFlash("currentStorage");
+
   // Motor pin definitions
   pinMode(motorA1Pin, OUTPUT);
   pinMode(motorA2Pin, OUTPUT);
@@ -124,6 +128,7 @@ void stopDispensing(){
     currentMachineState = IDLE;
     // Reducing the current storage by one and lowering the jars back down the shaft
     currentStorage--;
+    writeValueToFlash("currentStorage", currentStorage);
     motorDown();
   }else{
     // If the dispensing process was not successful
@@ -161,6 +166,7 @@ void maintenanceProcess(){
     bool exitSensorTriggered = false;
     bool bottomSensorTriggered = false;
     bool emptyStorage = false;
+    writeValueToFlash("currentStorage", currentStorage);
   }
 
   if (digitalRead(upButton) == LOW && currentMotorState != UP){

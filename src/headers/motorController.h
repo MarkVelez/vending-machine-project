@@ -1,8 +1,6 @@
 #ifndef motorController_h
 #define motorController_h
 
-extern unsigned char currentStorage;
-
 // Machine states
 enum machineStates{
   IDLE,
