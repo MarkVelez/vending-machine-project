@@ -1,10 +1,10 @@
 #include <Arduino.h>
-#include "../headers/temperatureController.h"
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include "../headers/temperatureController.h"
 
 // Data pin from the sensor
-const unsigned char dataPin = 4;
+uint8_t dataPin = 4;
 
 // Time between requests in minutes
 unsigned char requestInterval = 15;
@@ -13,22 +13,27 @@ unsigned long tempStartTime = 0;
 
 // Library setups
 OneWire data(dataPin);
-DallasTemperature sensors(&data);
+DallasTemperature sensor(&data);
 
 void temperatureSetup(){
-    sensors.begin();
+    // Initialize the sensors
+    sensor.begin();
 }
 
 void readTemperature(){
+    // Variable to keep track of the time since boot in milliseconds
     unsigned long currentTime = millis();
 
     // Print the temperature every interval
     if (currentTime - tempStartTime >= requestInterval * 60000){
         tempStartTime = currentTime;
+
+        // Get the temperatures
         sensors.requestTemperatures();
-        float temperatureC = sensors.getTempCByIndex(0);
-        Serial.println("Temperatures: ");
+        float temperatureC = sensors.getTempC();
+
+        // Print the temperature to serial
+        Serial.println("TEMPERATURE>");
         Serial.print(temperatureC);
-        Serial.print(" C");
     }
 }

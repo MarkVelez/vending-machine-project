@@ -32,11 +32,13 @@ const uint8_t downButton = 8;
 const uint8_t increaseStorage = 9;
 const uint8_t decreaseStorage = 10;
 
-
 // Storage variables
 int currentStorage;
 int maxStorage = 10;
 bool emptyStorage = false;
+
+// Holds generated HEX formated error code
+char* generatedErrorCode;
 
 void motorSetup(){
   currentStorage = getValueFromFlash("currentStorage");
@@ -91,11 +93,12 @@ void startDispensing(){
   motorUp();
 }
 
+// Dispensing process
 void dispensingProcess(){
   unsigned long currentTime = millis();
 
   // Checking for sensor inputs until timout or the exit sensor is triggered
-  if (currentTime - startTime < sensorTime + motorTimeout || !exitSensorTriggered){
+  if (currentTime - startTime < sensorTime + motorTimeout && !exitSensorTriggered){
     // Checking if the sensor at the top of the shaft has been triggered
     // If yes it stops the motor
     if (digitalRead(topSensor) == LOW){
@@ -134,7 +137,7 @@ void stopDispensing(){
     // If the dispensing process was not successful
     Serial.println("Failed to dispense");
     // Generate error code and send it to the server which disables the machine
-    generateErrorCode();
+    generatedErrorCode = generateErrorCode();
     // Sending the jars back down without removing from the current storage
     motorDown();
   }
@@ -160,34 +163,42 @@ void maintenanceProcess(){
   // If the maintenance button is pressed in maintenance mode it exits maintenance mode
   if (digitalRead(maintenanceModeButton) == LOW){
     currentMachineState == IDLE;
+
+    // Reset all error bools
     bool connectionFailed = false;
     bool requestFailed = false;
     bool topSensorTriggered = false;
     bool exitSensorTriggered = false;
     bool bottomSensorTriggered = false;
     bool emptyStorage = false;
+
+    // Save the storage value to flash
     writeValueToFlash("currentStorage", currentStorage);
   }
 
+  // If the up button is being held move the jars up
   if (digitalRead(upButton) == LOW && currentMotorState != UP){
     motorUp();
+  // If the down button is being held move the jars down
   }else if (digitalRead(downButton) == LOW && currentMotorState != DOWN){
     motorDown();
+  // If neither are being held stop the motor
   }else if (currentMotorState != STOPPED){
     motorStop();
   }
 
+  // If the increase button is pressed add one to current storage
   if (digitalRead(increaseStorage) == LOW && currentStorage < maxStorage){
     currentStorage++;
   }
 
-  if (digitalRead(decreaseStorage) == LOW){
+  // If the decrease button is pressed remove one from current storage
+  if (digitalRead(decreaseStorage) == LOW && currentStorage > 0){
     currentStorage--;
   }
-  
-  delay(50);
 }
 
+// Idle process
 void idleProcess(bool successfulPayment){
   // Checks for successful payments
   // If there was one start the dispensing process
@@ -199,12 +210,24 @@ void idleProcess(bool successfulPayment){
   // If yes generates an error code and sends it to the server which disables the machine
   if (currentStorage <= 0){
     emptyStorage = true;
-    generateErrorCode();
+    generatedErrorCode = generateErrorCode();
   }
 
   // If the maintenance button is pressed the machine switches to maintenance mode
   if (digitalRead(maintenanceModeButton) == LOW){
     currentMachineState = MAINTENANCE;
+    // Display the current storage
     lcdPrint("Storage: ", currentStorage);
+  }
+}
+
+// Disabled process
+void disableProcess(){
+  // If the maintenance button is pressed the machine switches to maintenance mode
+  if (digitalRead(maintenanceModeButton) == LOW){
+    currentMachineState = MAINTENANCE;
+    // Display the current storage as well as the error code
+    lcdPrint("Storage: ", currentStorage);
+    lcdPrint("Error: ", generatedErrorCode, 1, true);
   }
 }

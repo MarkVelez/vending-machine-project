@@ -2,35 +2,35 @@
 #include "headers/motorController.h"
 #include "headers/temperatureController.h"
 #include "headers/serialHandler.h"
-
-// MDB USB relay pin
-const uint8_t relayPin = 26;
+#include "headers/paymentHandler.h"
 
 // Machine state
 machineStates currentMachineState = IDLE;
 
+// Error bool
 bool serialConnected = false;
 
 void setup(){
   // Setups for included modules
   serialSetup();
+  paymentSetup();
   temperatureSetup();
   motorSetup();
-
-  pinMode(relayPin, INPUT_PULLUP);
 }
 
 void loop(){
+  // Attempt to establish serial connection
   if (establishConnection && !serialConnected){
     serialConnected = true;
   }
 
+  // If connection was succesful operate normally
   if (serialConnected){
     temperatureRead();
     switch (currentMachineState){
       // The idle state of the machine
       case IDLE:{
-        idleProcess(!digitalRead(relayPin));
+        idleProcess(paymentProcessing());
         break;
       }
       // Runs once a successful payment has gone through
@@ -48,6 +48,12 @@ void loop(){
       // Runs if the jars are being sent back down the shaft
       case RETURNING:{
         returningProcess();
+        break;
+      }
+
+      // Runs if there was an error and the machine was disabled
+      case DISABLE:{
+        disableProcess();
         break;
       }
     }
