@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "../headers/lcdController.h"
+#include "lcdController.h"
 
 // Where the data pin of the coin acceptor is connected
 uint8_t coinPin = 19;

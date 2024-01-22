@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
-#include "../headers/temperatureController.h"
+#include "temperatureController.h"
 
 // Data pin from the sensor
 uint8_t dataPin = 4;
@@ -29,11 +29,11 @@ void readTemperature(){
         tempStartTime = currentTime;
 
         // Get the temperatures
-        sensors.requestTemperatures();
-        float temperatureC = sensors.getTempC();
+        sensor.requestTemperatures();
+        float temperatureC = sensor.getTempCByIndex(0);
 
         // Print the temperature to serial
-        Serial.println("TEMPERATURE>");
-        Serial.print(temperatureC);
+        Serial.print("TEMPERATURE>");
+        Serial.println(temperatureC);
     }
 }

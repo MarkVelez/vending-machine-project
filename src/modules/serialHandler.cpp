@@ -1,6 +1,7 @@
 #include <Arduino.h>
-#include "../headers/serialHandler.h"
-#include "../headers/errorHandler.h"
+#include "serialHandler.h"
+#include "errorHandler.h"
+#include "motorController.h"
 
 // Error variables
 bool connectionFailed = false;
@@ -35,6 +36,7 @@ bool establishConnection(){
         // Disable the machine after 3 failed attempts
         connectionFailed = true;
         generateErrorCode();
+        return false;
     }
 }
 

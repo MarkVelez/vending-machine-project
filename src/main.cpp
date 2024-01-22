@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include "headers/motorController.h"
-#include "headers/temperatureController.h"
-#include "headers/serialHandler.h"
-#include "headers/paymentHandler.h"
+#include "motorController.h"
+#include "temperatureController.h"
+#include "serialHandler.h"
+#include "paymentHandler.h"
 
 // Machine state
 machineStates currentMachineState = IDLE;

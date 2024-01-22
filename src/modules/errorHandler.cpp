@@ -1,12 +1,12 @@
 #include <Arduino.h>
-#include "../headers/errorHandler.h"
-#include "../headers/motorController.h"
-#include "../headers/lcdController.h"
+#include "errorHandler.h"
+#include "motorController.h"
+#include "lcdController.h"
 
-// Variable to hold the error code in HEX
+// Definition of the global variable
 char errorHex[3];
 
-char* generateErrorCode(){
+void generateErrorCode(){
     // Resetting the unformated error code
     int errorCode = 0;
     // Getting all the error bool values
@@ -27,6 +27,4 @@ char* generateErrorCode(){
     machineStates currentMachineState = DISABLE;
 
     lcdPrint("MACHINE DISABLED");
-
-    return errorHex;
 }

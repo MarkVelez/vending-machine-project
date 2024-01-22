@@ -30,5 +30,6 @@ void dispensingProcess();
 void stopDispensing();
 void returningProcess();
 void maintenanceProcess();
+void disableProcess();
 
 #endif

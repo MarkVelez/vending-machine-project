@@ -89,3 +89,20 @@ void lcdPrint(const char* prefix, int number, uint8_t line = 0, bool noClear = f
     lcd.print(prefix);
     lcd.print(number);
 }
+
+void lcdPrint(const char* prefix, float number, uint8_t line = 0, bool noClear = false){
+    // Caps the selected line
+    if (line > maxLines){
+        line = maxLines;
+    }
+
+    // Clears the LCD if not set to true
+    if (!noClear){
+        lcd.clear();
+    }
+
+    // Set the cursor to the selected line and print the number with its prefix
+    lcd.setCursor(0, line);
+    lcd.print(prefix);
+    lcd.print(number);
+}

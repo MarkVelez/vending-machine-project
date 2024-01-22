@@ -1,8 +1,8 @@
 #include <Arduino.h>
-#include "../headers/motorController.h"
-#include "../headers/errorHandler.h"
-#include "../headers/lcdController.h"
-#include "../headers/flashController.h"
+#include "motorController.h"
+#include "errorHandler.h"
+#include "lcdController.h"
+#include "flashController.h"
 
 // Motor variables
 const uint8_t motorA1Pin = 26;
@@ -36,9 +36,6 @@ const uint8_t decreaseStorage = 10;
 int currentStorage;
 int maxStorage = 10;
 bool emptyStorage = false;
-
-// Holds generated HEX formated error code
-char* generatedErrorCode;
 
 void motorSetup(){
   currentStorage = getValueFromFlash("currentStorage");
@@ -137,7 +134,7 @@ void stopDispensing(){
     // If the dispensing process was not successful
     Serial.println("Failed to dispense");
     // Generate error code and send it to the server which disables the machine
-    generatedErrorCode = generateErrorCode();
+    generateErrorCode();
     // Sending the jars back down without removing from the current storage
     motorDown();
   }
@@ -210,7 +207,7 @@ void idleProcess(bool successfulPayment){
   // If yes generates an error code and sends it to the server which disables the machine
   if (currentStorage <= 0){
     emptyStorage = true;
-    generatedErrorCode = generateErrorCode();
+    generateErrorCode();
   }
 
   // If the maintenance button is pressed the machine switches to maintenance mode
@@ -228,6 +225,6 @@ void disableProcess(){
     currentMachineState = MAINTENANCE;
     // Display the current storage as well as the error code
     lcdPrint("Storage: ", currentStorage);
-    lcdPrint("Error: ", generatedErrorCode, 1, true);
+    lcdPrint("Error: ", errorHex, 1, true);
   }
 }
