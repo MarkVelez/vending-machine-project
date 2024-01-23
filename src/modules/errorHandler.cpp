@@ -24,7 +24,7 @@ void generateErrorCode(){
     Serial.println(errorHex);
 
     // Disable the machine
-    machineStates currentMachineState = DISABLE;
+    currentMachineState = DISABLE;
 
     lcdPrint("MACHINE DISABLED");
 }

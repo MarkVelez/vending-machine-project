@@ -3,25 +3,30 @@
 #include "temperatureController.h"
 #include "serialHandler.h"
 #include "paymentHandler.h"
+#include "lcdController.h"
 
 // Machine state
 machineStates currentMachineState = IDLE;
 
-// Error bool
+// For knowing if a serial connection is established
 bool serialConnected = false;
 
 void setup(){
   // Setups for included modules
   serialSetup();
   paymentSetup();
+  lcdSetup();
   temperatureSetup();
   motorSetup();
+  lcdPrint("INITIALIZING");
 }
 
 void loop(){
   // Attempt to establish serial connection
   if (establishConnection && !serialConnected){
     serialConnected = true;
+    lcdPrint("Insert Coin");
+    lcdPrint("To Begin", 1, true);
   }
 
   // If connection was succesful operate normally

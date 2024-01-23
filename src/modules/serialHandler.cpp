@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include "serialHandler.h"
 #include "errorHandler.h"
-#include "motorController.h"
 
 // Error variables
 bool connectionFailed = false;
