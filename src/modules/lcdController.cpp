@@ -24,7 +24,7 @@ void lcdSetup(){
 
 
 // Custom print functions with overloads
-void lcdPrint(const char* text, uint8_t line = 0, bool noClear = false){
+void lcdPrint(const char* text, bool noClear = false, uint8_t line = 0){
     // Caps the selected line
     if (line > maxLines){
         line = maxLines;
@@ -40,7 +40,7 @@ void lcdPrint(const char* text, uint8_t line = 0, bool noClear = false){
     lcd.print(text);
 }
 
-void lcdPrint(const char* prefix, char* hex, uint8_t line = 0, bool noClear = false){
+void lcdPrint(const char* prefix, char* hex, bool noClear = false, uint8_t line = 0){
     // Caps the selected line
     if (line > maxLines){
         line = maxLines;
@@ -57,7 +57,7 @@ void lcdPrint(const char* prefix, char* hex, uint8_t line = 0, bool noClear = fa
     lcd.print(hex);
 }
 
-void lcdPrint(int number, uint8_t line = 0, bool noClear = false){
+void lcdPrint(int number, bool noClear = false, uint8_t line = 0){
     // Caps the selected line
     if (line > maxLines){
         line = maxLines;
@@ -73,7 +73,7 @@ void lcdPrint(int number, uint8_t line = 0, bool noClear = false){
     lcd.print(number);
 }
 
-void lcdPrint(const char* prefix, int number, uint8_t line = 0, bool noClear = false){
+void lcdPrint(const char* prefix, int number, bool noClear = false, uint8_t line = 0){
     // Caps the selected line
     if (line > maxLines){
         line = maxLines;
@@ -90,7 +90,7 @@ void lcdPrint(const char* prefix, int number, uint8_t line = 0, bool noClear = f
     lcd.print(number);
 }
 
-void lcdPrint(const char* prefix, float number, uint8_t line = 0, bool noClear = false){
+void lcdPrint(const char* prefix, float number, bool noClear = false, uint8_t line = 0){
     // Caps the selected line
     if (line > maxLines){
         line = maxLines;

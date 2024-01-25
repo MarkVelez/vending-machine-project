@@ -11,15 +11,17 @@ float productPrice = 8.50;
 float coinValues[] = {0, 2, 1, 0.5, 0.2, 0.1};
 
 // Process variables
-int i = 0;
 int impulseCount = 0;
 float totalAmount = 0;
-bool coinInserted = false;
+
+// Time variables
+unsigned long coinInsertTime;
+const int impulseTime = 100;
 
 // Called whenever the coin acceptor sends an impulse
 void incomingImpulse(){
     impulseCount++;
-    coinInserted = true;
+    coinInsertTime = millis();
 }
 
 // Setup for the payment handler
@@ -33,18 +35,12 @@ bool paymentProcessing(){
     // If the full price has not been paid yet
     if (totalAmount < productPrice){
         // If there is a coin insertion
-        while (coinInserted){
-            i++;
-            // After 30 intervals check the amount of impulses
-            if (i >= 30){
-                // Add an amount based on the amount of impulses
-                totalAmount += coinValues[impulseCount];
-                // Tell the customer their total amount inserted
-                lcdPrint("Total: ", totalAmount);
-                i = 0;
-                impulseCount = 0;
-                coinInserted = false;
-            }
+        if (impulseCount > 0 && millis() - coinInsertTime > impulseTime){
+            // Add an amount based on the amount of impulses
+            totalAmount += coinValues[impulseCount];
+            // Tell the customer their total amount inserted
+            lcdPrint("Total: ", totalAmount);
+            impulseCount = 0;
         }
         return false;
     }else{

@@ -26,7 +26,7 @@ void loop(){
   if (establishConnection && !serialConnected){
     serialConnected = true;
     lcdPrint("Insert Coin");
-    lcdPrint("To Begin", 1, true);
+    lcdPrint("To Begin", true, 1);
   }
 
   // If connection was succesful operate normally

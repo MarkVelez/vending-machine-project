@@ -7,7 +7,8 @@
 // Motor variables
 const uint8_t motorA1Pin = 26;
 const uint8_t motorA2Pin = 27;
-uint8_t motorSpeed = 50;
+uint8_t motorSpeed;
+uint8_t returnSpeed = 50;
 motorStates currentMotorState = STOPPED;
 
 // Input pins
@@ -68,7 +69,7 @@ void motorUp(){
 // Makes the motor spin forwards
 void motorDown(){
   digitalWrite(motorA1Pin, LOW);
-  analogWrite(motorA2Pin, 50);
+  analogWrite(motorA2Pin, returnSpeed);
   currentMotorState = DOWN;
 }
 
@@ -77,129 +78,6 @@ void motorStop(){
   analogWrite(motorA1Pin, 0);
   analogWrite(motorA2Pin, 0);
   currentMotorState = STOPPED;
-}
-
-// Starts the dispensing process
-void startDispensing(){
-  currentMachineState = DISPENSING;
-  // Setting the motor speed based on how many jars are currently stored
-  motorSpeed = map(currentStorage, 1, maxStorage, 50, 240);
-  startTime = millis();
-  exitSensorTriggered = false;
-  topSensorTriggered = false;
-  motorUp();
-  lcdPrint("Dispensing");
-}
-
-// Dispensing process
-void dispensingProcess(){
-  unsigned long currentTime = millis();
-
-  // Checking for sensor inputs until timout or the exit sensor is triggered
-  if (currentTime - startTime < sensorTime + motorTimeout && !exitSensorTriggered){
-    // Checking if the sensor at the top of the shaft has been triggered
-    // If yes it stops the motor
-    if (digitalRead(topSensor) == LOW){
-      Serial.println("LOG>");
-      Serial.print("Top sensor triggered");
-      motorStop();
-      topSensorTriggered = true;
-      delay(50);
-    }
-
-    // Checking if the sensor at the exit hole of the vending machine is triggered
-    // If yes it initiates the stopping of the dispensing process
-    if (digitalRead(exitSensor) == LOW){
-      Serial.println("LOG>");
-      Serial.print("Exit sensor triggered");
-      exitSensorTriggered = true;
-      delay(50);
-    }
-  }else{
-    // Stopping the motor and checking if the dispensing was successful or not
-    motorStop();
-    delay(50);
-    stopDispensing();
-  }
-}
-
-// Stops the dispensing process
-void stopDispensing(){
-  // If the dispensing process was successful
-  if (topSensorTriggered && exitSensorTriggered){
-    Serial.println("LOG>");
-    Serial.print("Successfully dispensed");
-    currentMachineState = IDLE;
-    // Reducing the current storage by one and lowering the jars back down the shaft
-    currentStorage--;
-    writeValueToFlash("currentStorage", currentStorage);
-    motorDown();
-    lcdPrint("Enjoy");
-  }else{
-    // If the dispensing process was not successful
-    Serial.println("Failed to dispense");
-    // Generate error code and send it to the server which disables the machine
-    generateErrorCode();
-    // Sending the jars back down without removing from the current storage
-    motorDown();
-  }
-  currentMachineState = RETURNING;
-  Serial.println("LOG>");
-  Serial.print("Returning");
-}
-
-// Starts the returning process
-void returningProcess(){
-  // Checking if the jars have reached the bottom of the shaft
-  // If yes stop the motor
-  if (digitalRead(bottomSensor) == LOW){
-    Serial.println("LOG>");
-    Serial.print("Bottom sensor triggered");
-    motorStop();
-    currentMachineState = IDLE;
-    delay(50);
-  }
-}
-
-
-// Starts the maintenance process
-void maintenanceProcess(){
-  // If the maintenance button is pressed in maintenance mode it exits maintenance mode
-  if (digitalRead(maintenanceModeButton) == LOW){
-    currentMachineState == IDLE;
-
-    // Reset all error bools
-    bool connectionFailed = false;
-    bool requestFailed = false;
-    bool topSensorTriggered = false;
-    bool exitSensorTriggered = false;
-    bool bottomSensorTriggered = false;
-    bool emptyStorage = false;
-
-    // Save the storage value to flash
-    writeValueToFlash("currentStorage", currentStorage);
-  }
-
-  // If the up button is being held move the jars up
-  if (digitalRead(upButton) == LOW && currentMotorState != UP){
-    motorUp();
-  // If the down button is being held move the jars down
-  }else if (digitalRead(downButton) == LOW && currentMotorState != DOWN){
-    motorDown();
-  // If neither are being held stop the motor
-  }else if (currentMotorState != STOPPED){
-    motorStop();
-  }
-
-  // If the increase button is pressed add one to current storage
-  if (digitalRead(increaseStorage) == LOW && currentStorage < maxStorage){
-    currentStorage++;
-  }
-
-  // If the decrease button is pressed remove one from current storage
-  if (digitalRead(decreaseStorage) == LOW && currentStorage > 0){
-    currentStorage--;
-  }
 }
 
 // Idle process
@@ -225,6 +103,137 @@ void idleProcess(bool successfulPayment){
   }
 }
 
+// Starts the dispensing process
+void startDispensing(){
+  currentMachineState = DISPENSING;
+  // Setting the motor speed based on how many jars are currently stored
+  motorSpeed = map(currentStorage, 1, maxStorage, 50, 240);
+  startTime = millis();
+  exitSensorTriggered = false;
+  topSensorTriggered = false;
+  bottomSensorTriggered = false;
+  motorUp();
+  lcdPrint("Dispensing");
+}
+
+// Dispensing process
+void dispensingProcess(){
+  // Checking for sensor inputs until timout or the exit sensor is triggered
+  if (millis() - startTime < sensorTime + motorTimeout && !exitSensorTriggered){
+    // Checking if the sensor at the top of the shaft has been triggered
+    // If yes it stops the motor
+    if (digitalRead(topSensor) == LOW){
+      // Log to the serial port
+      Serial.print("LOG>");
+      Serial.println("Top sensor triggered");
+      motorStop();
+      topSensorTriggered = true;
+      delay(50);
+    }
+
+    // Checking if the sensor at the exit hole of the vending machine is triggered
+    // If yes it initiates the stopping of the dispensing process
+    if (digitalRead(exitSensor) == LOW){
+      // Log to the serial port
+      Serial.print("LOG>");
+      Serial.println("Exit sensor triggered");
+      exitSensorTriggered = true;
+      delay(50);
+    }
+  }else{
+    // Stopping the motor and checking if the dispensing was successful or not
+    motorStop();
+    delay(50);
+    stopDispensing();
+  }
+}
+
+// Stops the dispensing process
+void stopDispensing(){
+  // Log to serial port
+  Serial.print("LOG>");
+  Serial.println("Dispensing finished returning jars");
+  motorDown();
+  currentMachineState = RETURNING;
+  // If the dispensing process was successful
+  if (topSensorTriggered && exitSensorTriggered){
+    // Log to the serial port
+    Serial.print("LOG>");
+    Serial.println("Successfully dispensed");
+    // Reducing the current storage by one and saving it to flash
+    currentStorage--;
+    writeValueToFlash("currentStorage", currentStorage);
+    lcdPrint("Enjoy");
+  }else{
+    // If the dispensing process was not successful
+    Serial.print("LOG>");
+    Serial.println("Failed to dispense");
+    // Generate error code and send it to the server which disables the machine
+    generateErrorCode();
+  }
+}
+
+// Starts the returning process
+void returningProcess(){
+  // Checking if the jars have reached the bottom of the shaft
+  // If yes stop the motor
+  if (digitalRead(bottomSensor) == LOW){
+    Serial.print("LOG>");
+    Serial.println("Bottom sensor triggered");
+    bottomSensorTriggered = true;
+    motorStop();
+    // If the machine wasn't disabled it sets the state to idle
+    if (currentMachineState != DISABLE){
+      currentMachineState = IDLE;
+    }
+    delay(50);
+  }
+}
+
+
+// Starts the maintenance process
+void maintenanceProcess(){
+  // If the maintenance button is pressed in maintenance mode it exits maintenance mode
+  if (digitalRead(maintenanceModeButton) == LOW){
+    currentMachineState = IDLE;
+
+    // Reset all error bools
+    bool connectionFailed = false;
+    bool requestFailed = false;
+    bool topSensorTriggered = false;
+    bool exitSensorTriggered = false;
+    bool bottomSensorTriggered = false;
+    bool emptyStorage = false;
+
+    // Save the storage value to flash
+    writeValueToFlash("currentStorage", currentStorage);
+
+    lcdPrint("Insert Coin");
+    lcdPrint("To Begin", true, 1);
+  }
+
+  // If the up button is being held move the jars up
+  if (digitalRead(upButton) == LOW && currentMotorState != UP){
+    motorUp();
+  // If the down button is being held move the jars down
+  }else if (digitalRead(downButton) == LOW && currentMotorState != DOWN){
+    motorDown();
+  // If neither are being held stop the motor
+  }else if (currentMotorState != STOPPED){
+    motorStop();
+  }
+
+  // If the increase button is pressed add one to current storage
+  if (digitalRead(increaseStorage) == LOW && currentStorage < maxStorage){
+    currentStorage++;
+  }
+
+  // If the decrease button is pressed remove one from current storage
+  if (digitalRead(decreaseStorage) == LOW && currentStorage > 0){
+    currentStorage--;
+  }
+}
+
 // Disabled process
 void disableProcess(){
   // If the maintenance button is pressed the machine switches to maintenance mode
@@ -232,6 +241,10 @@ void disableProcess(){
     currentMachineState = MAINTENANCE;
     // Display the current storage as well as the error code
     lcdPrint("Storage: ", currentStorage);
-    lcdPrint("Error: ", errorHex, 1, true);
+    lcdPrint("Error: ", errorHex, true, 1);
+  }
+  // Stop the motor if its at the bottom of the shaft
+  if (!bottomSensorTriggered){
+    returningProcess();
   }
 }

@@ -21,11 +21,8 @@ void temperatureSetup(){
 }
 
 void readTemperature(){
-    // Variable to keep track of the time since boot in milliseconds
-    unsigned long currentTime = millis();
-
     // Print the temperature every interval
-    if (currentTime - tempStartTime >= requestInterval * 60000){
+    if (millis() - tempStartTime >= requestInterval * 60000){
         tempStartTime = currentTime;
 
         // Get the temperatures
