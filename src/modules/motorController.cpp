@@ -193,25 +193,7 @@ void returningProcess(){
 
 // Starts the maintenance process
 void maintenanceProcess(){
-  // If the maintenance button is pressed in maintenance mode it exits maintenance mode
-  if (digitalRead(maintenanceModeButton) == LOW){
-    currentMachineState = IDLE;
-
-    // Reset all error bools
-    bool connectionFailed = false;
-    bool requestFailed = false;
-    bool topSensorTriggered = false;
-    bool exitSensorTriggered = false;
-    bool bottomSensorTriggered = false;
-    bool emptyStorage = false;
-
-    // Save the storage value to flash
-    writeValueToFlash("currentStorage", currentStorage);
-
-    lcdPrint("Insert Coin");
-    lcdPrint("To Begin", true, 1);
-  }
-
+  // Manual control of the jars
   // If the up button is being held move the jars up
   if (digitalRead(upButton) == LOW && currentMotorState != UP){
     motorUp();
@@ -223,14 +205,34 @@ void maintenanceProcess(){
     motorStop();
   }
 
+  // Manual storage control
   // If the increase button is pressed add one to current storage
   if (digitalRead(increaseStorage) == LOW && currentStorage < maxStorage){
     currentStorage++;
   }
-
   // If the decrease button is pressed remove one from current storage
   if (digitalRead(decreaseStorage) == LOW && currentStorage > 0){
     currentStorage--;
+  }
+
+  // If the maintenance button is pressed in maintenance mode it exits maintenance mode
+  if (digitalRead(maintenanceModeButton) == LOW){
+    currentMachineState = IDLE;
+
+    // Reset all error bools
+    connectionFailed = false;
+    requestFailed = false;
+    topSensorTriggered = false;
+    exitSensorTriggered = false;
+    bottomSensorTriggered = false;
+    emptyStorage = false;
+
+    // Save the storage value to flash
+    writeValueToFlash("currentStorage", currentStorage);
+
+    // Reset the LCD display text
+    lcdPrint("Insert Coin");
+    lcdPrint("To Begin", true, 1);
   }
 }
 
@@ -243,6 +245,7 @@ void disableProcess(){
     lcdPrint("Storage: ", currentStorage);
     lcdPrint("Error: ", errorHex, true, 1);
   }
+  
   // Stop the motor if its at the bottom of the shaft
   if (!bottomSensorTriggered){
     returningProcess();
