@@ -1,4 +1,5 @@
 #include <Preferences.h>
+#include "flashController.h"
 
 // Definition for Preferences library
 Preferences localData;

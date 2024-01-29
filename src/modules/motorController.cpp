@@ -89,7 +89,7 @@ void idleProcess(bool successfulPayment){
   }
 
   // Checks if storage is empty
-  // If yes generates an error code and sends it to the server which disables the machine
+  // If yes generates an error code which disables the machine
   if (currentStorage <= 0){
     emptyStorage = true;
     generateErrorCode();
@@ -119,7 +119,7 @@ void startDispensing(){
 // Dispensing process
 void dispensingProcess(){
   // Checking for sensor inputs until timout or the exit sensor is triggered
-  if (millis() - startTime < sensorTime + motorTimeout && !exitSensorTriggered){
+  if (millis() - startTime < sensorTime + motorTimeout && !(topSensorTriggered && exitSensorTriggered)){
     // Checking if the sensor at the top of the shaft has been triggered
     // If yes it stops the motor
     if (digitalRead(topSensor) == LOW){
@@ -163,7 +163,8 @@ void stopDispensing(){
     // Reducing the current storage by one and saving it to flash
     currentStorage--;
     writeValueToFlash("currentStorage", currentStorage);
-    lcdPrint("Enjoy");
+    lcdPrint("Insert Coin");
+    lcdPrint("To Begin", true, 1);
   }else{
     // If the dispensing process was not successful
     Serial.print("LOG>");

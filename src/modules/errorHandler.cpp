@@ -10,7 +10,14 @@ void generateErrorCode(){
     // Resetting the unformated error code
     int errorCode = 0;
     // Getting all the error bool values
-    bool errorBools[] = {connectionFailed, requestFailed, emptyStorage, topSensorTriggered, exitSensorTriggered, bottomSensorTriggered};
+    bool errorBools[] = {
+    connectionFailed, 
+    requestFailed, 
+    emptyStorage, 
+    topSensorTriggered, 
+    exitSensorTriggered, 
+    bottomSensorTriggered
+    };
     int errorCodeLength = sizeof(errorBools) / sizeof(errorBools[0]);
 
     // Add all the error bool values to the unformated error code
@@ -25,6 +32,5 @@ void generateErrorCode(){
 
     // Disable the machine
     currentMachineState = DISABLE;
-
     lcdPrint("MACHINE DISABLED");
 }

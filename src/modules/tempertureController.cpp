@@ -4,16 +4,14 @@
 #include "temperatureController.h"
 
 // Data pin from the sensor
-uint8_t dataPin = 4;
-
-// Time between requests in minutes
-unsigned char requestInterval = 15;
-
-unsigned long tempStartTime = 0;
-
+const uint8_t dataPin = 4;
 // Library setups
 OneWire data(dataPin);
 DallasTemperature sensor(&data);
+
+// Time between requests in minutes
+int requestInterval = 15;
+unsigned long tempStartTime = 0;
 
 void temperatureSetup(){
     // Initialize the sensors
@@ -23,7 +21,7 @@ void temperatureSetup(){
 void readTemperature(){
     // Print the temperature every interval
     if (millis() - tempStartTime >= requestInterval * 60000){
-        tempStartTime = currentTime;
+        tempStartTime = millis();
 
         // Get the temperatures
         sensor.requestTemperatures();

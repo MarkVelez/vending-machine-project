@@ -1,5 +1,5 @@
-#ifndef serialHandler_h
-#define serialHandler_h
+#ifndef serialCommunication_h
+#define serialCommunication_h
 
 // Request types for data retrival
 enum requestTypes{
