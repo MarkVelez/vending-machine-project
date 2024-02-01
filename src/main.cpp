@@ -23,7 +23,7 @@ void setup(){
 
 void loop(){
   // Attempt to establish serial connection
-  if (establishConnection && !serialConnected){
+  if (establishConnection() && !serialConnected){
     serialConnected = true;
     lcdPrint("Insert Coin");
     lcdPrint("To Begin", true, 1);
