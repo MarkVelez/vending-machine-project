@@ -4,13 +4,13 @@
 #include "temperatureController.h"
 
 // Data pin from the sensor
-const uint8_t dataPin = 4;
+const uint8_t dataPin = 19;
 // Library setups
 OneWire data(dataPin);
 DallasTemperature sensor(&data);
 
 // Time between requests in minutes
-int requestInterval = 15;
+unsigned long requestInterval = 15;
 unsigned long tempStartTime = 0;
 
 void temperatureSetup(){

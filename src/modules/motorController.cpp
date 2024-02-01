@@ -5,23 +5,23 @@
 #include "flashController.h"
 
 // Motor variables
-const uint8_t motorA1Pin = 26;
-const uint8_t motorA2Pin = 27;
+const uint8_t motorA1Pin = 25;
+const uint8_t motorA2Pin = 26;
 uint8_t motorSpeed;
 uint8_t returnSpeed = 50;
 motorStates currentMotorState = STOPPED;
 
 // Input pins
-const uint8_t topSensor = 12;
-const uint8_t exitSensor = 14;
-const uint8_t bottomSensor = 27;
+const uint8_t topSensor = 13;
+const uint8_t exitSensor = 12;
+const uint8_t bottomSensor = 14;
 
 // Service mode pins
-const uint8_t maintenanceModeButton = 6;
-const uint8_t upButton = 7;
-const uint8_t downButton = 8;
-const uint8_t increaseStorage = 9;
-const uint8_t decreaseStorage = 10;
+const uint8_t maintenanceModeButton = 18;
+const uint8_t upButton = 4;
+const uint8_t downButton = 5;
+const uint8_t increaseStorage = 32;
+const uint8_t decreaseStorage = 33;
 
 // Sensor logging variables
 bool topSensorTriggered = false;
@@ -187,7 +187,7 @@ void returningProcess(){
     if (currentMachineState != DISABLE){
       currentMachineState = IDLE;
     }
-    delay(50);
+    delay(100);
   }
 }
 
@@ -198,9 +198,11 @@ void maintenanceProcess(){
   // If the up button is being held move the jars up
   if (digitalRead(upButton) == LOW && currentMotorState != UP){
     motorUp();
+    delay(100);
   // If the down button is being held move the jars down
   }else if (digitalRead(downButton) == LOW && currentMotorState != DOWN){
     motorDown();
+    delay(100);
   // If neither are being held stop the motor
   }else if (currentMotorState != STOPPED){
     motorStop();
@@ -210,10 +212,12 @@ void maintenanceProcess(){
   // If the increase button is pressed add one to current storage
   if (digitalRead(increaseStorage) == LOW && currentStorage < maxStorage){
     currentStorage++;
+    delay(100);
   }
   // If the decrease button is pressed remove one from current storage
   if (digitalRead(decreaseStorage) == LOW && currentStorage > 0){
     currentStorage--;
+    delay(100);
   }
 
   // If the maintenance button is pressed in maintenance mode it exits maintenance mode
@@ -245,6 +249,7 @@ void disableProcess(){
     // Display the current storage as well as the error code
     lcdPrint("Storage: ", currentStorage);
     lcdPrint("Error: ", errorHex, true, 1);
+    delay(100);
   }
   
   // Stop the motor if its at the bottom of the shaft

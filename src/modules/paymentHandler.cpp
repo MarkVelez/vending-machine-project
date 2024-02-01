@@ -2,7 +2,7 @@
 #include "lcdController.h"
 
 // Where the data pin of the coin acceptor is connected
-uint8_t coinPin = 19;
+uint8_t coinPin = 27;
 
 // The price of the product
 float productPrice = 8.50;
