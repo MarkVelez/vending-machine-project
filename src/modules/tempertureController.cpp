@@ -16,6 +16,8 @@ unsigned long tempStartTime = 0;
 void temperatureSetup(){
     // Initialize the sensors
     sensor.begin();
+
+    
 }
 
 void readTemperature(){

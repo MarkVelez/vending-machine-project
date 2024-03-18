@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "motorController.h"
 #include "temperatureController.h"
-#include "serialHandler.h"
+#include "serialCommunication.h"
 #include "paymentHandler.h"
 #include "lcdController.h"
 

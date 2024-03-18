@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include "serialHandler.h"
+#include "serialCommunication.h"
 #include "errorHandler.h"
 
 // Error variables
